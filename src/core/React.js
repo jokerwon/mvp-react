@@ -24,24 +24,41 @@ function createDOM(type) {
 
 // ReactDOM 中会调用
 function render(el, container) {
-  const fiber = {
+  nextWorkOfUnit = {
     dom: container,
     props: {
       children: [el],
     },
   }
-  nextWorkOfUnit = fiber
+  root = nextWorkOfUnit
 }
 
+let root = null
 let nextWorkOfUnit = null
 function workLoop(deadline) {
   let shouldYield = false
   while (!shouldYield && nextWorkOfUnit) {
     nextWorkOfUnit = performWorkOfUnit(nextWorkOfUnit)
     shouldYield = deadline.timeRemaining() < 1
+
+    if (!nextWorkOfUnit && root) {
+      commitRoot()
+      root = null
+    }
   }
 
   requestIdleCallback(workLoop)
+}
+
+function commitRoot() {
+  commitWork(root.child)
+}
+
+function commitWork(fiber) {
+  if (!fiber) return
+  fiber.parent.dom.append(fiber.dom)
+  commitWork(fiber.child)
+  commitWork(fiber.sibling)
 }
 
 function updateProps(dom, props) {
@@ -77,7 +94,8 @@ function initChidren(fiber) {
 function performWorkOfUnit(fiber) {
   if (!fiber.dom) {
     const dom = (fiber.dom = createDOM(fiber.type))
-    fiber.parent.dom.append(dom)
+    // 后置到 fiber 处理完后统一挂载
+    // fiber.parent.dom.append(dom)
     updateProps(dom, fiber.props)
   }
   initChidren(fiber)
