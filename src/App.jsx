@@ -1,13 +1,20 @@
 import React from './core/React.js'
 
-const App = (
-  <div>
-    Hello React
-    <div>A</div>
+function Counter(props) {
+  return <div>counter: {props.number}</div>
+}
+
+function Wrap() {
+  return <Counter number={10} />
+}
+
+function App() {
+  return (
     <div>
-      B<div>C</div>
+      <Counter number={10} />
+      <Counter number={100} />
     </div>
-  </div>
-)
+  )
+}
 
 export default App
