@@ -72,6 +72,12 @@ function commitWork(fiber) {
 function updateProps(dom, props) {
   Object.keys(props).forEach((propKey) => {
     if (propKey !== 'children') {
+      // 绑定事件
+      if (propKey.startsWith('on')) {
+        const eventType = propKey.toLowerCase().substring(2)
+        dom.addEventListener(eventType, props[propKey])
+        return
+      }
       dom[propKey] = props[propKey]
     }
   })
