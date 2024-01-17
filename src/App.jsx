@@ -14,6 +14,7 @@ function App() {
       Hello React
       <Counter number={10} />
       <Counter number={100} />
+      <button onClick={() => console.log('clicked')}>Click</button>
     </div>
   )
 }
