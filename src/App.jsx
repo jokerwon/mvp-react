@@ -11,6 +11,7 @@ function Wrap() {
 function App() {
   return (
     <div>
+      Hello React
       <Counter number={10} />
       <Counter number={100} />
     </div>
