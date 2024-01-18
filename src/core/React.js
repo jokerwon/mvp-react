@@ -24,25 +24,25 @@ function createDOM(type) {
 
 // ReactDOM 中会调用
 function render(el, container) {
-  nextWorkOfUnit = {
+  wipRoot = {
     dom: container,
     props: {
       children: [el],
     },
   }
-  root = nextWorkOfUnit
+  nextWorkOfUnit = wipRoot
 }
 
 function update() {
-  nextWorkOfUnit = {
+  wipRoot = {
     dom: currentRoot.dom,
     props: currentRoot.props,
     alternate: currentRoot,
   }
-  root = nextWorkOfUnit
+  nextWorkOfUnit = wipRoot
 }
 
-let root = null
+let wipRoot = null
 let currentRoot = null
 let nextWorkOfUnit = null
 function workLoop(deadline) {
@@ -51,7 +51,7 @@ function workLoop(deadline) {
     nextWorkOfUnit = performWorkOfUnit(nextWorkOfUnit)
     shouldYield = deadline.timeRemaining() < 1
 
-    if (!nextWorkOfUnit && root) {
+    if (!nextWorkOfUnit && wipRoot) {
       commitRoot()
     }
   }
@@ -60,9 +60,9 @@ function workLoop(deadline) {
 }
 
 function commitRoot() {
-  commitWork(root.child)
-  currentRoot = root
-  root = null
+  commitWork(wipRoot.child)
+  currentRoot = wipRoot
+  wipRoot = null
 }
 
 function commitWork(fiber) {
@@ -112,7 +112,7 @@ function updateProps(dom, nextProps = {}, prevProps = {}) {
   })
 }
 
-function initChidren(fiber, children) {
+function reconcileChildren(fiber, children) {
   let oldFiber = fiber.alternate?.child
   console.log('oldFiber', oldFiber)
   let prevChild = null
@@ -160,7 +160,7 @@ function initChidren(fiber, children) {
 
 function updateFunctionComponent(fiber) {
   const children = [fiber.type(fiber.props)]
-  initChidren(fiber, children)
+  reconcileChildren(fiber, children)
 }
 
 function updateHostComponent(fiber) {
@@ -171,7 +171,7 @@ function updateHostComponent(fiber) {
     updateProps(dom, fiber.props)
   }
   const children = fiber.props.children
-  initChidren(fiber, children)
+  reconcileChildren(fiber, children)
 }
 
 function performWorkOfUnit(fiber) {
